@@ -1,0 +1,175 @@
+html {
+    font-size: 0.9em;
+}
+
+p {
+    margin-bottom: 0.25rem;
+}
+
+#app {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+        sans-serif;
+    padding: 1rem 2rem 4rem;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: auto auto 20rem 1fr;
+}
+
+.xsmall {
+    font-size: 0.7rem;
+}
+
+.small {
+    font-size: 0.83rem;
+}
+
+h1 {
+    font-size: revert;
+    font-style: revert;
+    font-weight: revert;
+    margin: 0;
+    margin-bottom: 1rem;
+}
+
+#well {
+    color: rgb(82 191 175);
+}
+
+#schedule {
+    grid-row: 2 / 5;
+    grid-column: 1 / 2;
+    margin-right: 2rem;
+    align-self: start;
+
+    display: grid;
+    grid-template-rows: repeat(33, 1.5rem);
+    grid-template-columns: 4rem repeat(6, 1fr);
+
+    background-color: lightgray;
+    gap: 1px;
+}
+
+.session {
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    margin: 0.02rem;
+    padding: 0.2rem;
+}
+
+.session-title {
+    margin: 0.1rem 0;
+}
+
+.other-remove {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+    line-height: 1.3rem;
+    text-align: center;
+    border-radius: 50px;
+    border: 1px solid darkgray;
+    cursor: pointer;
+}
+
+.empty-cells,
+.time-labels,
+.day-labels {
+    background: white;
+}
+
+.time-labels {
+    grid-column: 1;
+    justify-self: end;
+    align-self: center;
+    margin-right: 0.25rem;
+}
+
+.day-labels {
+    grid-row: 1;
+    justify-self: center;
+    align-self: center;
+}
+
+#clear {
+    align-self: center;
+    justify-self: end;
+    display: inline-block;
+}
+
+#clear > * {
+    margin-left: 0.75rem;
+}
+
+#search {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+#filters > div {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+hr {
+    margin: 0.75rem 0rem;
+}
+/* 
+#other-activity {
+    scale: 0.95;
+    transform-origin: top left;
+} */
+
+#other-activity > div:nth-child(2) {
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+#other-activity input[type="button"] {
+    margin-left: 0.5rem;
+}
+
+#course-list {
+    margin: 1rem 0;
+    overflow: scroll;
+    border: 1px solid lightgray;
+}
+
+#course-list li {
+    border: none;
+    border-bottom: 1px solid lightgray;
+    cursor: pointer;
+}
+
+#meeting-list {
+    margin: 0.5rem 0;
+}
+
+#meeting-list label {
+    margin-left: 0.25rem;
+}
+
+input:disabled + label {
+    color: gray;
+}
+
+#course-detail p span {
+    font-size: inherit;
+    font-weight: inherit;
+}
+
+footer {
+    color: gray;
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+.reverse {
+    display: inline-block;
+    transform: rotate(180deg);
+}
