@@ -46,6 +46,10 @@ function between(x, min, max) {
     return x > min && x <= max;
 }
 
+function clamp(x, min, max) {
+    return Math.min(Math.max(x, min), max)
+}
+
 function parseMeeting(meeting) {
     //           02/05:          Mon           4:00               - 5:00PM            ...
     let [_, days, timeStart, timeEnd, location] = meeting.match(MEETING_REGEX);
@@ -218,7 +222,9 @@ let app = createApp({
         },
         sessionRow(session) {
             let start = Math.floor(session[2] * 2) - 16 + 2;
+            start = clamp(start, 2, 33)
             let end = Math.floor(session[3] * 2) - 16 + 2;
+            end = clamp(end, start, 33)
             return `${start} / ${end}`;
         },
         courseFilter: function (course, courseIdx) {
