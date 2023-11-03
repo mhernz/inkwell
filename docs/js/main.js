@@ -81,6 +81,7 @@ let app = createApp({
             hnsFilter: "off",
             studioFilter: "off",
             scheduleFilter: "off",
+            showOtherActivity: false,
             otherDays: [],
             otherStart: "",
             otherEnd: "",
@@ -126,6 +127,11 @@ let app = createApp({
                 }
             }
             return sessions;
+        },
+        scheduledCourses() {
+            let courses = new Set();
+            this.scheduledMeetings.filter(s => s[0] != -1).forEach(m => courses.add(m[0]));
+            return [...courses]
         },
         credits() {
             let minCredits = this.scheduledMeetings.reduce((sum, meeting) => {
@@ -207,6 +213,7 @@ let app = createApp({
             return this.scheduledMeetings.some((m) => m[0] == courseIdx);
         },
         schedule(courseIdx, meeting) {
+            if (courseIdx != -1) this.unschedule(courseIdx);
             this.scheduledMeetings.push([courseIdx, meeting]);
         },
         unschedule(courseIdx) {
@@ -303,7 +310,8 @@ let app = createApp({
         courseColor(i) {
             if (i == -1) return "lightgray";
             let hue = simpleHash(this.courses[i]["section_code"]) % 360;
-            return `hsl(${hue}, 75%, 86%)`;
+            return `oklch(90% 30% ${hue}deg)`
+            // return `hsl(${hue}deg, 75%, 80%)`;
         },
         otherValid() {
             try {

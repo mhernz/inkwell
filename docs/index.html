@@ -13,10 +13,23 @@
         <link rel="stylesheet" href="css/main.css" />
         <title>Inkwell</title>
     </head>
+
     <body>
         <div id="app">
-            <h1>ink<span id="well">well</span></h1>
-            <div id="schedule">
+            <h1 class="m-0 mb-3">ink<span id="well">well</span></h1>
+
+            <div id="clear">
+                <span>Credits: {{ credits }}</span>
+                <input
+                    id="clear"
+                    class="btn btn-outline-danger ms-3"
+                    type="button"
+                    value="Clear schedule"
+                    @click="scheduledMeetings = []"
+                />
+            </div>
+
+            <div id="schedule" class="me-4">
                 <div
                     v-for="i in 7*66"
                     class="empty-cells"
@@ -60,18 +73,7 @@
                 </div>
             </div>
 
-            <div id="clear">
-                <span>Credits: {{ credits }}</span>
-                <input
-                    id="clear"
-                    class="btn btn-outline-danger"
-                    type="button"
-                    value="Clear schedule"
-                    @click="scheduledMeetings = []"
-                />
-            </div>
-
-            <div id="filters">
+            <div>
                 <input
                     id="search"
                     class="form-control"
@@ -80,106 +82,115 @@
                     placeholder="Search course code, title, instructor"
                 />
 
-                <div class="btn-group btn-group-sm">
-                    <input
-                        type="radio"
-                        class="btn-check"
-                        name="hns"
-                        id="hns-off"
-                        value="off"
-                        v-model="hnsFilter"
-                    />
-                    <label class="btn btn-outline-primary" for="hns-off"
-                        >Off</label
-                    >
-                    <input
-                        type="radio"
-                        class="btn-check"
-                        name="hns"
-                        id="hns-all"
-                        value="all"
-                        v-model="hnsFilter"
-                    />
-                    <label class="btn btn-outline-primary" for="hns-all"
-                        >H&S (all)</label
-                    >
-                    <input
-                        type="radio"
-                        class="btn-check"
-                        name="hns"
-                        id="hns-2000"
-                        value="2000"
-                        v-model="hnsFilter"
-                    />
-                    <label class="btn btn-outline-primary" for="hns-2000"
-                        >H&S 2000-level</label
-                    >
-                    <input
-                        type="radio"
-                        class="btn-check"
-                        name="hns"
-                        id="hns-3000"
-                        value="3000"
-                        v-model="hnsFilter"
-                    />
-                    <label class="btn btn-outline-primary" for="hns-3000"
-                        >H&S 3000-level</label
-                    >
+                <div id="filters" class="mt-3">
+                    <div class="btn-group btn-group-sm">
+                        <input
+                            type="radio"
+                            class="btn-check"
+                            name="hns"
+                            id="hns-off"
+                            value="off"
+                            v-model="hnsFilter"
+                        />
+                        <label class="btn btn-outline-primary" for="hns-off"
+                            >Off</label
+                        >
+                        <input
+                            type="radio"
+                            class="btn-check"
+                            name="hns"
+                            id="hns-all"
+                            value="all"
+                            v-model="hnsFilter"
+                        />
+                        <label class="btn btn-outline-primary" for="hns-all"
+                            >H&S (all)</label
+                        >
+                        <input
+                            type="radio"
+                            class="btn-check"
+                            name="hns"
+                            id="hns-2000"
+                            value="2000"
+                            v-model="hnsFilter"
+                        />
+                        <label class="btn btn-outline-primary" for="hns-2000"
+                            >H&S 2000-level</label
+                        >
+                        <input
+                            type="radio"
+                            class="btn-check"
+                            name="hns"
+                            id="hns-3000"
+                            value="3000"
+                            v-model="hnsFilter"
+                        />
+                        <label class="btn btn-outline-primary" for="hns-3000"
+                            >H&S 3000-level</label
+                        >
+                    </div>
+
+                    <div class="btn-group btn-group-sm">
+                        <input
+                            type="radio"
+                            class="btn-check"
+                            name="studio"
+                            id="studio-off"
+                            value="off"
+                            v-model="studioFilter"
+                        />
+                        <label class="btn btn-outline-primary" for="studio-off"
+                            >Off</label
+                        >
+                        <input
+                            type="radio"
+                            class="btn-check"
+                            name="studio"
+                            id="studio-on"
+                            value="on"
+                            v-model="studioFilter"
+                        />
+                        <label class="btn btn-outline-primary" for="studio-on"
+                            >Studio</label
+                        >
+                    </div>
+
+                    <div class="btn-group btn-group-sm">
+                        <input
+                            type="radio"
+                            class="btn-check"
+                            name="schedule"
+                            id="schedule-off"
+                            value="off"
+                            v-model="scheduleFilter"
+                        />
+                        <label
+                            class="btn btn-outline-primary"
+                            for="schedule-off"
+                            >Off</label
+                        >
+                        <input
+                            type="radio"
+                            class="btn-check"
+                            name="schedule"
+                            id="schedule-on"
+                            value="on"
+                            v-model="scheduleFilter"
+                        />
+                        <label class="btn btn-outline-primary" for="schedule-on"
+                            >Fits schedule</label
+                        >
+                    </div>
                 </div>
 
-                <div class="btn-group btn-group-sm">
-                    <input
-                        type="radio"
-                        class="btn-check"
-                        name="studio"
-                        id="studio-off"
-                        value="off"
-                        v-model="studioFilter"
-                    />
-                    <label class="btn btn-outline-primary" for="studio-off"
-                        >Off</label
-                    >
-                    <input
-                        type="radio"
-                        class="btn-check"
-                        name="studio"
-                        id="studio-on"
-                        value="on"
-                        v-model="studioFilter"
-                    />
-                    <label class="btn btn-outline-primary" for="studio-on"
-                        >Studio</label
-                    >
-                </div>
-
-                <div class="btn-group btn-group-sm">
-                    <input
-                        type="radio"
-                        class="btn-check"
-                        name="schedule"
-                        id="schedule-off"
-                        value="off"
-                        v-model="scheduleFilter"
-                    />
-                    <label class="btn btn-outline-primary" for="schedule-off"
-                        >Off</label
-                    >
-                    <input
-                        type="radio"
-                        class="btn-check"
-                        name="schedule"
-                        id="schedule-on"
-                        value="on"
-                        v-model="scheduleFilter"
-                    />
-                    <label class="btn btn-outline-primary" for="schedule-on"
-                        >Fits schedule</label
-                    >
-                </div>
-
-                <hr />
-
-                <div id="other-activity">
+                <a
+                    class="d-block mt-3 small"
+                    href="#"
+                    @click="showOtherActivity = !showOtherActivity"
+                    >{{ showOtherActivity ? "-" : "+" }} Add non-class
+                    activity</a
+                >
+                <div v-if="showOtherActivity" id="other-activity" class="mt-2 mb-3">
                     <div>
                         <div
                             class="form-check form-check-inline"
@@ -196,7 +207,7 @@
                             <label :for="'other-' + day">{{ day }}</label>
                         </div>
                     </div>
-                    <div>
+                    <div class="mt-1">
                         <input
                             type="time"
                             id="other-start"
@@ -206,78 +217,102 @@
                         <input type="time" id="other-end" v-model="otherEnd" />
                         <input
                             type="button"
-                            class="btn btn-outline-primary btn-sm"
+                            class="btn btn-outline-primary btn-sm ms-2"
                             id="other-add"
-                            value="Add non-class activity"
+                            value="Add"
                             @click="otherAdd()"
                             :disabled="!otherValid()"
                         />
                     </div>
                 </div>
-            </div>
 
-            <ul id="course-list" class="list-group" ref="course-list">
-                <template v-for="(course, idx) in courses">
-                    <li
-                        class="list-group-item py-1"
-                        v-if="courseFilter(course, idx)"
-                        :class="{'active': idx == activeIdx}"
-                        @click="selectCourse(idx)"
+                <div
+                    v-if="scheduledCourses.length > 0"
+                    id="courses"
+                    class="mt-3"
+                >
+                    <div
+                        class="course"
+                        v-for="c in scheduledCourses"
+                        @click="activeIdx = c"
+                        :style="{background: courseColor(c)}"
                     >
-                        <div>{{ fullTitle(course) }}</div>
-                    </li>
-                </template>
-            </ul>
-
-            <div id="course-detail" v-if="activeCourse">
-                <p>{{ fullTitle(activeCourse) }}</p>
-                <div class="small">{{ instructors(activeCourse) }}</div>
-                <div class="small">
-                    {{ activeCourse['instructional_format'] + " | " + activeCourse['get_location_filter'] }}
-                </div>
-                <div class="small">
-                    Credits: {{ courseCredits(activeCourse) }}
-                </div>
-
-                <div id="meeting-list" v-if="!validMeetings(activeCourse)">
-                    {{ activeCourse['get_meetings'][0] }}
-                </div>
-                <div id="meeting-list" v-else>
-                    <div>
-                        <input
-                            type="radio"
-                            name="meeting"
-                            id="meeting-none"
-                            @input="unschedule(activeIdx)"
-                            :checked="!anyMeetingScheduled(activeIdx)"
-                        />
-                        <label for="meeting-none" class="small">Not in schedule</label>
+                        {{ this.courses[c]['section_code'] }}
                     </div>
-                    <div v-for="(meeting, idx) in activeCourse['get_meetings']">
-                        <input
-                            type="radio"
-                            name="meeting"
-                            :id="'meeting-' + idx"
-                            :disabled="!(fitsSchedule(meeting) || isScheduled(activeIdx, meeting))"
-                            :checked="isScheduled(activeIdx, meeting)"
-                            @input="schedule(activeIdx, meeting)"
-                        />
-                        <label :for="'meeting-' + idx" class="small"
-                            >{{ meeting }}</label
+                </div>
+
+                <ul id="course-list" class="mt-3 list-group" ref="course-list">
+                    <template v-for="(course, idx) in courses">
+                        <li
+                            class="list-group-item py-1"
+                            v-if="courseFilter(course, idx)"
+                            :class="{'picked': idx == activeIdx}"
+                            @click="selectCourse(idx)"
                         >
-                    </div>
-                </div>
+                            <div>{{ fullTitle(course) }}</div>
+                        </li>
+                    </template>
+                </ul>
 
-                <p class="small">
-                    {{ strip(activeCourse['get_section_description']) }}
-                </p>
-            </div>
-            <div id="course-detail" v-else>
-                <div>No course selected</div>
+                <div id="course-detail" class="mt-3" v-if="activeCourse">
+                    <p>{{ fullTitle(activeCourse) }}</p>
+                    <div class="small">{{ instructors(activeCourse) }}</div>
+                    <div class="small">
+                        {{ activeCourse['instructional_format'] + " | " +
+                        activeCourse['get_location_filter'] }}
+                    </div>
+                    <div class="small">
+                        Credits: {{ courseCredits(activeCourse) }}
+                    </div>
+
+                    <div
+                        id="meeting-list"
+                        v-if="!validMeetings(activeCourse)"
+                        class="mt-2"
+                    >
+                        {{ activeCourse['get_meetings'][0] }}
+                    </div>
+                    <div id="meeting-list" class="mt-3 btn-group-vertical" v-else>
+                            <input
+                                type="radio"
+                                class="btn-check"
+                                name="meeting"
+                                id="meeting-none"
+                                @input="unschedule(activeIdx)"
+                                :checked="!anyMeetingScheduled(activeIdx)"
+                            />
+                            <label for="meeting-none" class="btn btn-outline-primary text-start"
+                                >Not in schedule</label
+                            >
+                        <template
+                            v-for="(meeting, idx) in activeCourse['get_meetings']"
+                        >
+                            <input
+                                type="radio"
+                                class="btn-check"
+                                name="meeting"
+                                :id="'meeting-' + idx"
+                                :disabled="!(fitsSchedule(meeting) || isScheduled(activeIdx, meeting))"
+                                :checked="isScheduled(activeIdx, meeting)"
+                                @input="schedule(activeIdx, meeting)"
+                            />
+                            <label :for="'meeting-' + idx" class="btn btn-outline-primary text-start"
+                                >{{ meeting }}</label
+                            >
+                    </template>
+                    </div>
+
+                    <p class="small mt-3">
+                        {{ strip(activeCourse['get_section_description']) }}
+                    </p>
+                </div>
+                <div id="course-detail" class="mt-3" v-else>
+                    <div>No course selected</div>
+                </div>
             </div>
         </div>
 
-        <footer class="small">
+        <footer class="small mb-2">
             <span
                 >Inspired by
                 <a href="https://firehose.guide">firehose.guide</a>.

@@ -13,7 +13,7 @@ p {
     padding: 1rem 2rem 4rem;
     display: grid;
     grid-template-columns: 2fr 1fr;
-    grid-template-rows: auto auto 20rem 1fr;
+    grid-template-rows: auto 1fr;
 }
 
 .xsmall {
@@ -28,8 +28,6 @@ h1 {
     font-size: revert;
     font-style: revert;
     font-weight: revert;
-    margin: 0;
-    margin-bottom: 1rem;
 }
 
 #well {
@@ -39,7 +37,6 @@ h1 {
 #schedule {
     grid-row: 2 / 5;
     grid-column: 1 / 2;
-    margin-right: 2rem;
     align-self: start;
 
     display: grid;
@@ -67,8 +64,8 @@ h1 {
 
 .other-remove {
     position: absolute;
-    top: 0;
-    right: 0;
+    top: 0.125rem;
+    right: 0.125rem;
     width: 1.5rem;
     height: 1.5rem;
     line-height: 1.3rem;
@@ -101,6 +98,7 @@ h1 {
     grid-row: 1 / 3;
     justify-self: center;
     align-self: center;
+    font-weight: bolder;
 }
 
 #clear {
@@ -109,42 +107,43 @@ h1 {
     display: inline-block;
 }
 
-#clear > * {
-    margin-left: 0.75rem;
-}
-
 #search {
     width: 100%;
-    margin-bottom: 1rem;
 }
 
-#filters > div {
-    display: block;
-    margin-bottom: 0.5rem;
+#filters {
+    width: 80%;
+    display: flex;
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+    column-gap: 1rem;
 }
-
-hr {
-    margin: 0.75rem 0rem;
-}
-/* 
-#other-activity {
-    scale: 0.95;
-    transform-origin: top left;
-} */
 
 #other-activity > div:nth-child(2) {
-    margin-top: 0.5rem;
     display: flex;
     align-items: center;
     gap: 0.25rem;
 }
 
-#other-activity input[type="button"] {
-    margin-left: 0.5rem;
+#courses {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: 0.5rem;
+}
+
+.course {
+    display: inline-flex;
+    height: 2.5rem;
+    border-radius: 0.5rem;
+    padding: 0 0.5rem;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
 }
 
 #course-list {
-    margin: 1rem 0;
+    height: 20rem;
     overflow: scroll;
     border: 1px solid lightgray;
 }
@@ -155,16 +154,22 @@ hr {
     cursor: pointer;
 }
 
-#meeting-list {
-    margin: 0.5rem 0;
+#course-list .picked {
+    background: gainsboro;
+}
+
+#meeting-list input[type=radio] {
+    transform: scale(1.25);
+    transform-origin: left;
 }
 
 #meeting-list label {
-    margin-left: 0.25rem;
+    line-height: 1;
+    font-size: 0.92rem;
 }
 
 input:disabled + label {
-    color: gray;
+    color: darkgray;
 }
 
 #course-detail p span {
@@ -175,7 +180,6 @@ input:disabled + label {
 footer {
     color: gray;
     text-align: center;
-    margin-bottom: 0.5rem;
 }
 
 .reverse {
