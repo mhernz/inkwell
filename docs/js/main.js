@@ -227,8 +227,13 @@ let app = createApp({
                     break;
                 case HNS_ALL:
                     if (
-                        !HSALL_CODES.some((code) =>
-                            course["section_code"].includes(code)
+                        !(
+                            HS2000_CODES.some((code) =>
+                                course["section_code"].includes(code + "-2")
+                            ) ||
+                            HS3000_CODES.some((code) =>
+                                course["section_code"].includes(code + "-3")
+                            )
                         )
                     ) {
                         return false;
