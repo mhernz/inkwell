@@ -43,10 +43,13 @@ h1 {
     align-self: start;
 
     display: grid;
-    grid-template-rows: repeat(33, 1.5rem);
+    grid-template-rows: repeat(66, .75rem);
     grid-template-columns: 4rem repeat(6, 1fr);
+    grid-auto-flow: row;
 
-    background-color: lightgray;
+    border-top: 1px solid lightgray;
+    border-left: 1px solid lightgray;
+
     gap: 1px;
 }
 
@@ -75,10 +78,16 @@ h1 {
     cursor: pointer;
 }
 
-.empty-cells,
-.time-labels,
-.day-labels {
-    background: white;
+.empty-cells {
+    border-right: 1px solid lightgray;
+}
+
+.empty-cells-solid {
+    border-bottom: 1px solid lightgray;
+}
+
+.empty-cells-dotted {
+    border-bottom: 1px dotted lightgray;
 }
 
 .time-labels {
@@ -89,7 +98,7 @@ h1 {
 }
 
 .day-labels {
-    grid-row: 1;
+    grid-row: 1 / 3;
     justify-self: center;
     align-self: center;
 }

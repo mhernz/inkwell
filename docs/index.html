@@ -18,14 +18,15 @@
             <h1>ink<span id="well">well</span></h1>
             <div id="schedule">
                 <div
-                    v-for="i in 7*33"
+                    v-for="i in 7*66"
                     class="empty-cells"
                     :style="{'grid-row': 1+Math.floor((i-1)/7), 'grid-column': (i-1) % 7 + 1}"
+                    :class="{'empty-cells-dotted': Math.floor((i - 1) / 7) % 4 == 3, 'empty-cells-solid': Math.floor((i - 1) / 7) % 4 == 1}"
                 ></div>
                 <div
                     class="time-labels small"
                     v-for="i in 16"
-                    :style="{'grid-row': (i*2)}"
+                    :style="{'grid-row': (i*4 - 1) + ' / ' + (i*4 + 1)}"
                 >
                     {{ timeSince8Am(i) }}
                 </div>

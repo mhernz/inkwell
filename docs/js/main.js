@@ -221,10 +221,10 @@ let app = createApp({
             );
         },
         sessionRow(session) {
-            let start = Math.floor(session[2] * 2) - 16 + 2;
-            start = clamp(start, 2, 33)
-            let end = Math.floor(session[3] * 2) - 16 + 2;
-            end = clamp(end, start, 33)
+            let start = Math.floor(session[2] * 4) - 32 + 3;
+            start = clamp(start, 3, 66)
+            let end = Math.floor(session[3] * 4) - 32 + 3;
+            end = clamp(end, start, 66)
             return `${start} / ${end}`;
         },
         courseFilter: function (course, courseIdx) {
