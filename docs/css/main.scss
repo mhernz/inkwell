@@ -1,0 +1,196 @@
+$primary: rgb(0, 168, 151);
+
+@import "../../node_modules/bootstrap/scss/bootstrap";
+
+html {
+    font-size: 0.9em;
+}
+
+p {
+    margin-bottom: 0.25rem;
+}
+
+input.btn-check:checked + label {
+    color: white !important;
+}
+
+#app {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+        sans-serif;
+    padding: 1rem 2rem 4rem;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: auto 1fr;
+}
+
+.xsmall {
+    font-size: 0.7rem;
+}
+
+.small {
+    font-size: 0.83rem;
+}
+
+h1 {
+    font-size: revert;
+    font-style: revert;
+    font-weight: revert;
+}
+
+#well {
+    color: rgb(82 191 175);
+}
+
+#schedule {
+    grid-row: 2 / 5;
+    grid-column: 1 / 2;
+    align-self: start;
+
+    display: grid;
+    grid-template-rows: repeat(66, .75rem);
+    grid-template-columns: 4rem repeat(6, 1fr);
+    grid-auto-flow: row;
+
+    border-top: 1px solid lightgray;
+    border-left: 1px solid lightgray;
+
+    gap: 1px;
+}
+
+.session {
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    margin: 0.02rem;
+    padding: 0.2rem;
+}
+
+.session-title {
+    margin: 0.1rem 0;
+}
+
+.other-remove {
+    position: absolute;
+    top: 0.125rem;
+    right: 0.125rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    line-height: 1.3rem;
+    text-align: center;
+    border-radius: 50px;
+    border: 1px solid darkgray;
+    cursor: pointer;
+}
+
+.empty-cells {
+    border-right: 1px solid lightgray;
+}
+
+.empty-cells-solid {
+    border-bottom: 1px solid lightgray;
+}
+
+.empty-cells-dotted {
+    border-bottom: 1px dotted lightgray;
+}
+
+.time-labels {
+    grid-column: 1;
+    justify-self: end;
+    align-self: center;
+    margin-right: 0.25rem;
+}
+
+.day-labels {
+    grid-row: 1 / 3;
+    justify-self: center;
+    align-self: center;
+    font-weight: bolder;
+}
+
+#clear {
+    align-self: center;
+    justify-self: end;
+    display: inline-block;
+}
+
+#search {
+    width: 100%;
+}
+
+#filters {
+    width: 80%;
+    display: flex;
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+    column-gap: 1rem;
+}
+
+#other-activity > div:nth-child(2) {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+#courses {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: 0.5rem;
+}
+
+.course {
+    display: inline-flex;
+    height: 2.5rem;
+    border-radius: 0.5rem;
+    padding: 0 0.5rem;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+}
+
+#course-list {
+    height: 20rem;
+    overflow: scroll;
+    border: 1px solid lightgray;
+}
+
+#course-list li {
+    border: none;
+    border-bottom: 1px solid lightgray;
+    cursor: pointer;
+}
+
+#course-list .picked {
+    background: gainsboro;
+}
+
+#meeting-list input[type=radio] {
+    transform: scale(1.25);
+    transform-origin: left;
+}
+
+#meeting-list label {
+    line-height: 1;
+    font-size: 0.92rem;
+}
+
+input:disabled + label {
+    color: darkgray;
+}
+
+#course-detail p span {
+    font-size: inherit;
+    font-weight: inherit;
+}
+
+footer {
+    color: gray;
+    text-align: center;
+}
+
+.reverse {
+    display: inline-block;
+    transform: rotate(180deg);
+}

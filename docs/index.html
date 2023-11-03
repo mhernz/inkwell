@@ -246,7 +246,7 @@
                         <li
                             class="list-group-item py-1"
                             v-if="courseFilter(course, idx)"
-                            :class="{'picked': idx == activeIdx}"
+                            :class="{'active': idx == activeIdx}"
                             @click="selectCourse(idx)"
                         >
                             <div>{{ fullTitle(course) }}</div>
