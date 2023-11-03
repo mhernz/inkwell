@@ -232,7 +232,7 @@
                 <p>{{ fullTitle(activeCourse) }}</p>
                 <div class="small">{{ instructors(activeCourse) }}</div>
                 <div class="small">
-                    {{ activeCourse['get_location_filter'] }}
+                    {{ activeCourse['instructional_format'] + " | " + activeCourse['get_location_filter'] }}
                 </div>
                 <div class="small">
                     Credits: {{ courseCredits(activeCourse) }}
