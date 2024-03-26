@@ -58,6 +58,7 @@ function parseMeeting(meeting) {
     // let days = meetingParts[0].split("/")
     // let time = meetingParts[1].replace(",", "")
     // let [timeStart, timeEnd] = time.split("-")
+    let timeString = timeStart + '-' + timeEnd;
     if (timeStart.length < 6) timeStart += timeEnd.substr(-2);
     if (timeEnd.length < 6) timeEnd += timeStart.substr(-2);
 
@@ -66,6 +67,7 @@ function parseMeeting(meeting) {
         time_start: timeStringToHours(timeStart),
         time_end: timeStringToHours(timeEnd),
         location: location,
+        time_string: timeString,
     };
 }
 
@@ -113,17 +115,22 @@ let app = createApp({
             let sessions = [];
             for (let [meetingIdx, m] of this.scheduledMeetings.entries()) {
                 let courseIdx = m[0];
-                let meeting = parseMeeting(m[1]);
-                for (let day of meeting["days"]) {
-                    sessions.push([
-                        courseIdx,
-                        day,
-                        meeting["time_start"],
-                        meeting["time_end"],
-                        m[1].split(" ")[1].replace(",", ""),
-                        meeting["location"],
-                        meetingIdx,
-                    ]);
+                console.log(m)
+                let meetings = courseIdx == -1 ? [m[1]] : COURSES[courseIdx]["get_meetings"]
+                for (let meeting of meetings) {
+                    let parsedMeeting = parseMeeting(meeting);
+                    for (let day of parsedMeeting["days"]) {
+                        sessions.push([
+                            courseIdx,
+                            day,
+                            parsedMeeting["time_start"],
+                            parsedMeeting["time_end"],
+                            // meeting.split(" ")[1].replace(",", ""),
+                            parsedMeeting["time_string"],
+                            parsedMeeting["location"],
+                            meetingIdx,
+                        ]);
+                    }
                 }
             }
             return sessions;
@@ -180,33 +187,44 @@ let app = createApp({
                 "Saturday",
             ][i - 1];
         },
-        fitsSchedule(meeting) {
-            for (let [_, scheduledMeeting] of this.scheduledMeetings) {
-                let parsedMeeting = parseMeeting(meeting);
-                let parsedScheduled = parseMeeting(scheduledMeeting);
-                if (
-                    between(
-                        parsedMeeting["time_end"],
-                        parsedScheduled["time_start"],
-                        parsedScheduled["time_end"]
-                    ) ||
-                    between(
-                        parsedScheduled["time_end"],
-                        parsedMeeting["time_start"],
-                        parsedMeeting["time_end"]
-                    )
-                ) {
-                    let scheduledDays = new Set(parsedScheduled["days"]);
+        fitsSchedule(meetings) {
+            let onSchedule = [];
+            for (let [courseIdx, m] of this.scheduledMeetings) {
+                if (courseIdx == -1) {
+                    onSchedule.push(m)
+                } else {
+                    onSchedule.push(...this.courses[courseIdx]["get_meetings"])
+                }
+            }
 
-                    if (parsedMeeting["days"].some((d) => scheduledDays.has(d)))
-                        return false;
+            for (let scheduledMeeting of onSchedule) {
+                for (let meeting of meetings) {
+                    let parsedMeeting = parseMeeting(meeting);
+                    let parsedScheduled = parseMeeting(scheduledMeeting);
+                    if (
+                        between(
+                            parsedMeeting["time_end"],
+                            parsedScheduled["time_start"],
+                            parsedScheduled["time_end"]
+                        ) ||
+                        between(
+                            parsedScheduled["time_end"],
+                            parsedMeeting["time_start"],
+                            parsedMeeting["time_end"]
+                        )
+                    ) {
+                        let scheduledDays = new Set(parsedScheduled["days"]);
+
+                        if (parsedMeeting["days"].some((d) => scheduledDays.has(d)))
+                            return false;
+                    }
                 }
             }
             return true;
         },
         isScheduled(courseIdx, meeting) {
             return this.scheduledMeetings.some((m) => {
-                return m[0] == courseIdx && m[1] == meeting;
+                return m[0] == courseIdx
             });
         },
         anyMeetingScheduled(courseIdx) {
@@ -280,15 +298,7 @@ let app = createApp({
 
             if (this.scheduleFilter == "on") {
                 let anyMeetingsFit =
-                    this.anyMeetingScheduled(courseIdx) ||
-                    course["get_meetings"].some((m) => {
-                        try {
-                            return this.fitsSchedule(m);
-                        } catch (error) {
-                            console.log(m);
-                            return true;
-                        }
-                    });
+                    this.anyMeetingScheduled(courseIdx) || this.fitsSchedule(course["get_meetings"]);
                 if (!anyMeetingsFit) return false;
             }
 
@@ -301,11 +311,6 @@ let app = createApp({
                 .toLowerCase()
                 .split(" ")
                 .every((t) => courseData.includes(t));
-        },
-        validMeetings(course) {
-            return course["get_meetings"].every(
-                (m) => m.match(MEETING_REGEX) !== null
-            );
         },
         courseColor(i) {
             if (i == -1) return "lightgray";
@@ -321,7 +326,7 @@ let app = createApp({
                 let parsed = parseMeeting(meetingStr);
                 return (
                     parsed["time_start"] < parsed["time_end"] &&
-                    this.fitsSchedule(meetingStr)
+                    this.fitsSchedule([meetingStr])
                 );
             } catch (error) {
                 console.log(error);
