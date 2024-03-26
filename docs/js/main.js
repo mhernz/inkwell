@@ -7,7 +7,7 @@ const COURSES = JSON.parse(COURSE_DATA)["hits"]["hits"].map(
 const MEETING_REGEX =
     /(?:\d+\/\d+: )?([a-zA-Z\/]+) (\d+:\d+[A-Z]{0,2})-(\d+:\d+[A-Z]{0,2})(?:, )?(.*)/;
 
-const HS2000_CODES = ["ETHSM", "LITPA", "PHCRT", "SSHIS", "SCIMA"];
+const HS2000_CODES = ["ETHSM", "LITPA", "PHCRT", "SSHIS", "SCIMA", "HAAVC"];
 const HS3000_CODES = [
     "ETHSM",
     "LITPA",
