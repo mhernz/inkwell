@@ -135,6 +135,26 @@ let app = createApp({
             }
             return sessions;
         },
+        potentialSessions() {
+            let sessions = [];
+                let meetings = COURSES[this.activeIdx]["get_meetings"]
+                for (let meeting of meetings) {
+                    let parsedMeeting = parseMeeting(meeting);
+                    for (let day of parsedMeeting["days"]) {
+                        sessions.push([
+                            this.activeIdx,
+                            day,
+                            parsedMeeting["time_start"],
+                            parsedMeeting["time_end"],
+                            // meeting.split(" ")[1].replace(",", ""),
+                            parsedMeeting["time_string"],
+                            parsedMeeting["location"],
+                            -1,
+                        ]);
+                    }
+                }
+            return sessions;
+        },
         scheduledCourses() {
             let courses = new Set();
             this.scheduledMeetings.filter(s => s[0] != -1).forEach(m => courses.add(m[0]));

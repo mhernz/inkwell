@@ -71,6 +71,10 @@
                         &#x2715;
                     </div>
                 </div>
+                <div v-if="activeIdx != -1" 
+                    v-for="session in potentialSessions"
+                    class="session potential-session"
+                    :style="{'grid-column': sessionCol(session), 'grid-row': sessionRow(session)}"></div>
             </div>
 
             <div>
