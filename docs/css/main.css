@@ -11926,6 +11926,7 @@ h1, .h1 {
 
 .potential-session {
   border: 2px dashed rgb(0, 168, 151);
+  pointer-events: none;
 }
 
 .session-title {
@@ -12056,3 +12057,5 @@ footer {
   display: inline-block;
   transform: rotate(180deg);
 }
+
+/*# sourceMappingURL=main.css.map */

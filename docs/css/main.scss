@@ -79,6 +79,7 @@ h1 {
 
 .potential-session {
     border: 2px dashed $primary;
+    pointer-events: none;
 }
 
 .session-title {
