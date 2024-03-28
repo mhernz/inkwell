@@ -340,7 +340,7 @@ let app = createApp({
         courseColor(i) {
             if (i == -1) return "lightgray";
             let hue = simpleHash(this.courses[i]["section_code"]) % 360;
-            return `oklch(90% 30% ${hue}deg)`
+            return `oklch(90% 0.1 ${hue}deg)`
             // return `hsl(${hue}deg, 75%, 80%)`;
         },
         otherValid() {
