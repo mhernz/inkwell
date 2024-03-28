@@ -23,16 +23,21 @@ const HNS_ALL = "all";
 const HNS_2000 = "2000";
 const HNS_3000 = "3000";
 
-// https://stackoverflow.com/questions/6122571/simple-non-secure-hash-function-for-javascript
-const simpleHash = (str) => {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-        const char = str.charCodeAt(i);
-        hash = (hash << 5) - hash + char;
-        hash &= hash; // Convert to 32bit integer
+/**
+ * Calculate a 32 bit FNV-1a hash
+ * Found here: https://gist.github.com/vaiorabbit/5657561
+ * Ref.: http://isthe.com/chongo/tech/comp/
+ */
+function simpleHash(str, seed) {
+    var i, l,
+        hval = (seed === undefined) ? 0x811c9dc5 : seed;
+
+    for (i = 0, l = str.length; i < l; i++) {
+        hval ^= str.charCodeAt(i);
+        hval += (hval << 1) + (hval << 4) + (hval << 7) + (hval << 8) + (hval << 24);
     }
-    return hash;
-};
+    return hval >>> 0;
+}
 
 function timeStringToHours(timeStr) {
     let parts = timeStr.split(":");
