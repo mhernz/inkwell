@@ -259,6 +259,8 @@
                             class="list-group-item py-1"
                             v-if="courseFilter(course, idx)"
                             :class="{'active': idx == activeIdx}"
+                            tabindex="0"
+                            v-on:keyup.enter="selectCourse(idx)"
                             @click="selectCourse(idx)"
                         >
                             <div>{{ fullTitle(course) }}</div>
