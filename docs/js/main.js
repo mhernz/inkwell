@@ -1,8 +1,17 @@
 const { createApp, ref } = Vue;
 
-const COURSES = JSON.parse(COURSE_DATA)["hits"]["hits"].map(
-    (c) => c["_source"]
-);
+const COURSE_CATALOG = JSON.parse(COURSE_DATA);
+const TERMS = Object.keys(COURSE_CATALOG);
+
+const SECTION_ID = "section_id";
+const COURSE_MEETINGS = "get_meetings";
+const ENROLLMENT_CODE = "def_refid";
+
+const CUSTOM_MEETING_TIME = "custom_meeting_time";
+
+function getCourseTermId(term, secId) {
+    return COURSE_CATALOG[term]["courses"].filter((c) => c[SECTION_ID] == secId)[0];
+}
 
 const MEETING_REGEX =
     /(?:\d+\/\d+: )?([a-zA-Z\/]+) (\d+:\d+[A-Z]{0,2})-(\d+:\d+[A-Z]{0,2})(?:, )?(.*)/;
@@ -29,12 +38,18 @@ const HNS_3000 = "3000";
  * Ref.: http://isthe.com/chongo/tech/comp/
  */
 function simpleHash(str, seed) {
-    var i, l,
-        hval = (seed === undefined) ? 0x811c9dc5 : seed;
+    var i,
+        l,
+        hval = seed === undefined ? 0x811c9dc5 : seed;
 
     for (i = 0, l = str.length; i < l; i++) {
         hval ^= str.charCodeAt(i);
-        hval += (hval << 1) + (hval << 4) + (hval << 7) + (hval << 8) + (hval << 24);
+        hval +=
+            (hval << 1) +
+            (hval << 4) +
+            (hval << 7) +
+            (hval << 8) +
+            (hval << 24);
     }
     return hval >>> 0;
 }
@@ -52,18 +67,18 @@ function between(x, min, max) {
 }
 
 function clamp(x, min, max) {
-    return Math.min(Math.max(x, min), max)
+    return Math.min(Math.max(x, min), max);
 }
 
-function parseMeeting(meeting) {
+function parseMeetingTime(meetingTimeString) {
     //           02/05:          Mon           4:00               - 5:00PM            ...
-    let [_, days, timeStart, timeEnd, location] = meeting.match(MEETING_REGEX);
+    let [_, days, timeStart, timeEnd, location] = meetingTimeString.match(MEETING_REGEX);
     days = days.split("/");
     // let meetingParts = meeting.split(" ")
     // let days = meetingParts[0].split("/")
     // let time = meetingParts[1].replace(",", "")
     // let [timeStart, timeEnd] = time.split("-")
-    let timeString = timeStart + '-' + timeEnd;
+    let timeString = timeStart + "-" + timeEnd;
     if (timeStart.length < 6) timeStart += timeEnd.substr(-2);
     if (timeEnd.length < 6) timeEnd += timeStart.substr(-2);
 
@@ -76,12 +91,21 @@ function parseMeeting(meeting) {
     };
 }
 
+function emptySchedule() {
+    let schedule = {}
+    for (const term of TERMS) {
+        schedule[term] = []
+    }
+    return schedule
+}
+
 let app = createApp({
     setup() {
         return {
             count: ref(0),
         };
     },
+
     data() {
         return {
             searchTerm: "",
@@ -92,41 +116,84 @@ let app = createApp({
             otherDays: [],
             otherStart: "",
             otherEnd: "",
-            activeIdx: -1,
-            scheduledMeetings: [],
+            activeTerm: TERMS[0],
+            activeSecId: "",
+            fullSchedule: emptySchedule(),
         };
     },
+
     mounted() {
-        if (localStorage.schedule) {
-            this.scheduledMeetings = JSON.parse(localStorage.schedule);
+        if (!localStorage.version) {
+            localStorage.clear();
+            localStorage.version = 1;
+        }
+
+        if (localStorage.activeTerm) {
+            if (TERMS.includes(localStorage.activeTerm)) {
+                this.activeTerm = localStorage.activeTerm;
+            } else {
+                localStorage.activeTerm = this.activeTerm;
+            }
+        }
+
+        if (localStorage.fullSchedule) {
+            let fullSchedule = JSON.parse(localStorage.fullSchedule);
+            for (const term of TERMS) {
+                if (!(term in fullSchedule)) fullSchedule[term] = [];
+            }
+            this.fullSchedule = fullSchedule;
         }
     },
+
     watch: {
-        scheduledMeetings: {
+        activeTerm: {
             handler(newValue) {
-                localStorage.schedule = JSON.stringify(newValue);
+                localStorage.activeTerm = newValue;
+            },
+        },
+
+        fullSchedule: {
+            handler(newValue) {
+                localStorage.fullSchedule = JSON.stringify(newValue);
             },
             deep: true,
         },
     },
+
     computed: {
+        TERMS: function() {
+            return TERMS;
+        },
+
         courses() {
-            return COURSES;
+            return COURSE_CATALOG[this.activeTerm]["courses"];
         },
-        activeCourse() {
-            return this.courses[this.activeIdx];
+
+        enrollments() {
+            return COURSE_CATALOG[this.activeTerm]["enrollments"];
         },
+
+        activeSection() {
+            return this.getCourse(this.activeSecId);
+        },
+
+        schedule() {
+            return this.fullSchedule[this.activeTerm];
+        },
+
         sessions() {
             let sessions = [];
-            for (let [meetingIdx, m] of this.scheduledMeetings.entries()) {
-                let courseIdx = m[0];
-                console.log(m)
-                let meetings = courseIdx == -1 ? [m[1]] : COURSES[courseIdx]["get_meetings"]
+            for (let [meetingIdx, m] of this.schedule.entries()) {
+                let secId = m[SECTION_ID];
+                let meetings =
+                    secId == ""
+                        ? [m[CUSTOM_MEETING_TIME]]
+                        : this.getCourse(secId)[COURSE_MEETINGS];
                 for (let meeting of meetings) {
-                    let parsedMeeting = parseMeeting(meeting);
+                    let parsedMeeting = parseMeetingTime(meeting);
                     for (let day of parsedMeeting["days"]) {
                         sessions.push([
-                            courseIdx,
+                            secId,
                             day,
                             parsedMeeting["time_start"],
                             parsedMeeting["time_end"],
@@ -140,68 +207,91 @@ let app = createApp({
             }
             return sessions;
         },
+
         potentialSessions() {
+            if (!this.activeSection) return;
             let sessions = [];
-                let meetings = COURSES[this.activeIdx]["get_meetings"]
-                for (let meeting of meetings) {
-                    let parsedMeeting = parseMeeting(meeting);
-                    for (let day of parsedMeeting["days"]) {
-                        sessions.push([
-                            this.activeIdx,
-                            day,
-                            parsedMeeting["time_start"],
-                            parsedMeeting["time_end"],
-                            // meeting.split(" ")[1].replace(",", ""),
-                            parsedMeeting["time_string"],
-                            parsedMeeting["location"],
-                            -1,
-                        ]);
-                    }
+            let meetings = this.activeSection[COURSE_MEETINGS];
+            for (let meeting of meetings) {
+                let parsedMeeting = parseMeetingTime(meeting);
+                for (let day of parsedMeeting["days"]) {
+                    sessions.push([
+                        this.activeSecId,
+                        day,
+                        parsedMeeting["time_start"],
+                        parsedMeeting["time_end"],
+                        // meeting.split(" ")[1].replace(",", ""),
+                        parsedMeeting["time_string"],
+                        parsedMeeting["location"],
+                        -1,
+                    ]);
                 }
+            }
             return sessions;
         },
+
         scheduledCourses() {
-            let courses = new Set();
-            this.scheduledMeetings.filter(s => s[0] != -1).forEach(m => courses.add(m[0]));
-            return [...courses]
+            return this.schedule
+                .map((m) => m[SECTION_ID])
+                .filter((i) => i != "");
         },
+
         credits() {
-            let minCredits = this.scheduledMeetings.reduce((sum, meeting) => {
+            let minCredits = this.schedule.reduce((sum, meeting) => {
                 return (
                     sum +
-                    parseFloat(this.courses[meeting[0]]?.["min_unit"] ?? 0)
+                    parseFloat(
+                        this.getCourse(meeting[SECTION_ID])?.["min_unit"] ?? 0
+                    )
                 );
             }, 0);
-            let maxCredits = this.scheduledMeetings.reduce((sum, meeting) => {
+            let maxCredits = this.schedule.reduce((sum, meeting) => {
                 return (
                     sum +
-                    parseFloat(this.courses[meeting[0]]?.["max_unit"] ?? 0)
+                    parseFloat(
+                        this.getCourse(meeting[SECTION_ID])?.["max_unit"] ?? 0
+                    )
                 );
             }, 0);
             if (minCredits == maxCredits) return minCredits.toFixed(1);
             else return `${minCredits.toFixed(1)}-${maxCredits.toFixed(1)}`;
         },
     },
+
     methods: {
-        selectCourse: function (idx) {
-            this.activeIdx = idx;
+        selectCourse: function (course) {
+            this.activeSecId = course[SECTION_ID];
         },
+
+        getCourse: function (secId) {
+            return getCourseTermId(this.activeTerm, secId);
+        },
+
         fullTitle: function (course) {
             if (course === undefined) return "Custom activity";
             return course["section_code"] + ": " + course["title"];
         },
+
         instructors: function (course) {
             let instrs = course["_get_instructors"];
             return instrs.length == 0
                 ? "No instructors listed"
                 : instrs.join(", ");
         },
+
+        enrollmentString: function (course) {
+            let enrolled = this.enrollments[course[ENROLLMENT_CODE]];
+            let cap = course["capacity"];
+            return `Enrolled: ${enrolled}/${cap}`;
+        },
+
         timeSince8Am: function (i) {
             let time = 8 + i - 1;
             if (time == 12) return "12pm";
             if (time > 12) return time - 12 + "pm";
             else return time + "am";
         },
+
         day(i) {
             return [
                 "Monday",
@@ -212,71 +302,84 @@ let app = createApp({
                 "Saturday",
             ][i - 1];
         },
-        fitsSchedule(meetings) {
-            let onSchedule = [];
-            for (let [courseIdx, m] of this.scheduledMeetings) {
-                if (courseIdx == -1) {
-                    onSchedule.push(m)
+
+        fitsSchedule(meetingTimes) {
+            let scheduledMeetingTimes = [];
+            for (let m of this.schedule) {
+                if (m[SECTION_ID] == "") {
+                    scheduledMeetingTimes.push(m[CUSTOM_MEETING_TIME]);
                 } else {
-                    onSchedule.push(...this.courses[courseIdx]["get_meetings"])
+                    scheduledMeetingTimes.push(
+                        ...this.getCourse(m[SECTION_ID])[COURSE_MEETINGS]
+                    );
                 }
             }
 
-            for (let scheduledMeeting of onSchedule) {
-                for (let meeting of meetings) {
-                    let parsedMeeting = parseMeeting(meeting);
-                    let parsedScheduled = parseMeeting(scheduledMeeting);
+            for (let t1 of scheduledMeetingTimes) {
+                for (let t2 of meetingTimes) {
+                    let p1 = parseMeetingTime(t1);
+                    let p2 = parseMeetingTime(t2);
                     if (
                         between(
-                            parsedMeeting["time_end"],
-                            parsedScheduled["time_start"],
-                            parsedScheduled["time_end"]
+                            p2["time_end"],
+                            p1["time_start"],
+                            p1["time_end"]
                         ) ||
                         between(
-                            parsedScheduled["time_end"],
-                            parsedMeeting["time_start"],
-                            parsedMeeting["time_end"]
+                            p1["time_end"],
+                            p2["time_start"],
+                            p2["time_end"]
                         )
                     ) {
-                        let scheduledDays = new Set(parsedScheduled["days"]);
+                        let days = new Set(p1["days"]);
 
-                        if (parsedMeeting["days"].some((d) => scheduledDays.has(d)))
+                        if (p2["days"].some((d) => days.has(d)))
                             return false;
                     }
                 }
             }
             return true;
         },
-        isScheduled(courseIdx, meeting) {
-            return this.scheduledMeetings.some((m) => {
-                return m[0] == courseIdx
+
+        isScheduled(secId) {
+            return this.schedule.some((m) => m[SECTION_ID] == secId);
+        },
+
+        addToSchedule(secId, customMeetingTime) {
+            if (secId != "") this.removeFromSchedule(secId);
+            this.fullSchedule[this.activeTerm].push({
+                [SECTION_ID]: secId,
+                [CUSTOM_MEETING_TIME]: customMeetingTime,
             });
         },
-        anyMeetingScheduled(courseIdx) {
-            return this.scheduledMeetings.some((m) => m[0] == courseIdx);
+
+        removeFromSchedule(secId) {
+            this.fullSchedule[this.activeTerm] = this.schedule.filter((m) => m[SECTION_ID] != secId);
         },
-        schedule(courseIdx, meeting) {
-            if (courseIdx != -1) this.unschedule(courseIdx);
-            this.scheduledMeetings.push([courseIdx, meeting]);
+
+        removeMeetingWithIdx(meetingIdx) {
+            this.fullSchedule[this.activeTerm].splice(meetingIdx, 1);
         },
-        unschedule(courseIdx) {
-            this.scheduledMeetings = this.scheduledMeetings.filter(
-                (m) => m[0] != courseIdx
-            );
+
+        clearSchedule() {
+            this.fullSchedule[this.activeTerm] = [];
         },
+
         sessionCol(session) {
             return (
                 ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(session[1]) +
                 2
             );
         },
+
         sessionRow(session) {
             let start = Math.floor(session[2] * 4) - 32 + 3;
-            start = clamp(start, 3, 66)
+            start = clamp(start, 3, 66);
             let end = Math.floor(session[3] * 4) - 32 + 3;
-            end = clamp(end, start, 66)
+            end = clamp(end, start, 66);
             return `${start} / ${end}`;
         },
+
         courseFilter: function (course, courseIdx) {
             switch (this.hnsFilter) {
                 case HNS_OFF:
@@ -322,9 +425,10 @@ let app = createApp({
                 return false;
 
             if (this.scheduleFilter == "on") {
-                let anyMeetingsFit =
-                    this.anyMeetingScheduled(courseIdx) || this.fitsSchedule(course["get_meetings"]);
-                if (!anyMeetingsFit) return false;
+                let show =
+                    this.isScheduled(courseIdx) ||
+                    this.fitsSchedule(course[COURSE_MEETINGS]);
+                if (!show) return false;
             }
 
             if (this.searchTerm == "") return true;
@@ -337,30 +441,32 @@ let app = createApp({
                 .split(" ")
                 .every((t) => courseData.includes(t));
         },
-        courseColor(i) {
-            if (i == -1) return "lightgray";
-            let hue = simpleHash(this.courses[i]["section_code"]) % 360;
-            return `oklch(90% 0.1 ${hue}deg)`
+
+        sectionColor(secId) {
+            if (secId == "") return "lightgray";
+            let hue = simpleHash(this.getCourse(secId)["section_code"]) % 360;
+            return `oklch(90% 0.1 ${hue}deg)`;
             // return `hsl(${hue}deg, 75%, 80%)`;
         },
+
         otherValid() {
             try {
                 let meetingStr = `${this.otherDays.join("/")} ${
                     this.otherStart
                 }-${this.otherEnd}, `;
-                let parsed = parseMeeting(meetingStr);
+                let parsed = parseMeetingTime(meetingStr);
                 return (
                     parsed["time_start"] < parsed["time_end"] &&
                     this.fitsSchedule([meetingStr])
                 );
             } catch (error) {
-                console.log(error);
                 return false;
             }
         },
+
         otherAdd() {
-            this.schedule(
-                -1,
+            this.addToSchedule(
+                "",
                 `${this.otherDays.join("/")} ${this.otherStart}-${
                     this.otherEnd
                 }, `
@@ -369,12 +475,14 @@ let app = createApp({
             this.otherStart = "";
             this.otherEnd = "";
         },
+
         courseCredits(course) {
             let minCredits = parseFloat(course["min_unit"] ?? 0);
             let maxCredits = parseFloat(course["max_unit"] ?? 0);
             if (minCredits == maxCredits) return minCredits.toFixed(1);
             else return `${minCredits.toFixed(1)}-${maxCredits.toFixed(1)}`;
         },
+
         strip(html) {
             let tmp = document.createElement("div");
             tmp.innerHTML = html;
@@ -383,5 +491,9 @@ let app = createApp({
     },
 }).mount("#app");
 
-const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+const tooltipTriggerList = document.querySelectorAll(
+    '[data-bs-toggle="tooltip"]'
+);
+const tooltipList = [...tooltipTriggerList].map(
+    (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl)
+);
